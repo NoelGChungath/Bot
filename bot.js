@@ -31,7 +31,7 @@ client.on("message", (message) => {
   }
   if (exit == false) {
     message.reply(
-      "This phrase does not exist. If you want to add this phrase please vistf "
+      "This phrase does not exist. If you want to add this phrase please vist https://tharavadubot.glitch.me/  "
     );
   }
 });
