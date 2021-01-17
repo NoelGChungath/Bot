@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const fs = require("fs");
 const client = new Discord.Client();
-client.login("Nzk5Nzk4MzE1Mjg0NjkzMDMy.YAI0OQ.DRJErBSGtT0o4ad_42cS1svtR60");
+client.login("Nzk5Nzk4MzE1Mjg0NjkzMDMy.YAI0OQ.w9W3kqRvyWgLI1rvInNV0ZwRVDI");
 const express = require("express");
 
 //Getting input.json file using fs

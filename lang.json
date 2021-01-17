@@ -2,5 +2,9 @@
   {
     "input": "Noel",
     "output": "He is good at making bots"
+  },
+  {
+    "input": "tb",
+    "output": "tharavadu bot"
   }
 ]
