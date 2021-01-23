@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"node bot.js"
+    "start": "node bot.js"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,13 @@
   },
   "homepage": "https://github.com/NoelGChungath/Bot#readme",
   "dependencies": {
+    "currency-system": "^1.0.3",
+    "discord-coins": "^1.1.0",
     "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "fs": "0.0.1-security"
+    "fs": "0.0.1-security",
+    "micro-spelling-correcter": "^1.1.1",
+    "node-fetch": "^2.6.1"
   }
 }

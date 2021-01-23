@@ -1,47 +1,93 @@
 const Discord = require("discord.js");
-const fs = require("fs");
+const MicroSpellingCorrecter = require("micro-spelling-correcter");
+const discordcoins = require("discord-coins");
+const fetch = require("node-fetch");
+require("dotenv").config();
 const client = new Discord.Client();
-client.login("Nzk5Nzk4MzE1Mjg0NjkzMDMy.YAI0OQ.w9W3kqRvyWgLI1rvInNV0ZwRVDI");
-const express = require("express");
-
-//Getting input.json file using fs
-let orgData = JSON.parse(fs.readFileSync("lang.json"));
-
-let app = express();
-let port = process.env.PORT || 3000;
-let server = app.listen(port, () => console.log("Listening")); //listening in port 3000
-
-app.use(express.static("Public")); //setting webhost files
+client.login(process.env.TOKEN);
 
 client.on("ready", () => {
   console.log("Ready");
 });
 
-client.on("message", (message) => {
-  // Prefix
-  console.log(message.content.indexOf("!"));
-  let prefix = "!";
-  let exit = null;
-  for (let i = 0; i < orgData.length; i++) {
-    if (message.content === prefix + orgData[i].input) {
-      message.reply(orgData[i].output);
-      exit == true;
-      break;
-    }
-  }
-  if (exit == false) {
-    message.reply(
-      "This phrase does not exist. If you want to add this phrase please vist https://tharavadubot.glitch.me/  "
-    );
-  }
-});
+let correcter = new MicroSpellingCorrecter(
+  [
+    // list of target words
+    "!help",
+    "!gif",
+    "!wikpedia",
+  ],
+  100 // target maximum distance, defaults to 2
+);
 
-app.get("/add/:input/:output", (req, resp) => {
-  const params = req.params;
-  const input = params.input;
-  const output = params.output;
-  orgData = JSON.parse(fs.readFileSync("lang.json"));
-  orgData.push({ input, output });
-  fs.writeFileSync("lang.json", JSON.stringify(orgData, null, 2));
-  resp.send({ succesful: "successful" });
+client.on("message", async (message) => {
+  console.log(message.content);
+  const tokens = message.content.split(" ");
+  let searchQuery = "";
+
+  if (tokens.length > 1) {
+    searchQuery = tokens.slice(1, tokens.length).join(" ");
+  }
+
+  if (tokens[0] == "!gif") {
+    const response = await fetch(
+      `https://api.tenor.com/v1/search?q=${searchQuery}&key=${process.env.TENORKEY}&limit=15`
+    );
+    const jsonResponse = await response.json();
+    const index = Math.floor(Math.random() * jsonResponse.results.length);
+
+    message.channel.send(jsonResponse.results[index].url);
+  } else if (tokens[0] == "!wikpedia") {
+    const response = await fetch(
+      `https://en.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=${searchQuery}`
+    );
+    const jsonResponse = await response.json();
+    const filteredData = Object.values(jsonResponse.query.pages)[0]
+      .extract.split(".")
+      .slice(0, 10)
+      .join(" ");
+    console.log(filteredData);
+    message.channel.send(filteredData);
+  } else if (tokens[0] == "!help") {
+    const embed = new Discord.MessageEmbed()
+      .setColor("#ff652f")
+      .setTitle("Command List")
+      .addField(":camera: Gif", "!gif <arg>", true)
+      .addField("📚 Wikpedia", "!wikpedia <arg>", true)
+      .setTimestamp();
+
+    message.channel.send(embed);
+  } else if (tokens[0] == "!bal") {
+    let Balance = discordcoins.Balance(message.author.id);
+    message.channel.send(`${message.author.username} balance is ${Balance}!`);
+  } else if (message.content === `!add`) {
+    let Add = discordcoins.Add(message.author.id, 100); //100 is the amount you want to add.
+    message.channel.send(Add);
+  } else if (message.content === `!sub`) {
+    let Add = discordcoins.Add(message.author.id, 100); //100 is the amount you want to add.
+    message.channel.send(Add);
+  }
+
+  const correctSpelling = correcter.correct(tokens[0]);
+
+  if (correctSpelling.includes(tokens[0]) == false) {
+    const embed = new Discord.MessageEmbed()
+      .setColor("#ff652f")
+      .setTitle("Missing Arguments(s)")
+      .addField("The correct syntax is:", `${correctSpelling} <arg>`, true)
+      .setTimestamp();
+
+    message.channel.send(embed);
+  }
+
+  // if (correctSpelling.includes(tokens[0]) == false) {
+  //   console.log("ff");
+  //   // const embed = new Discord.MessageEmbed()
+  //   //   .setColor("#ff652f")
+  //   //   .setTitle("Missing Arguments(s)")
+  //   //   .addField("The correct syntax is:")
+  //   //   .addField(correctSpelling);
+
+  //   // message.channel.send(embed);
+  // }
 });
